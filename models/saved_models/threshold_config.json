@@ -1,0 +1,12 @@
+{
+    "best_model_name": "XGBoost",
+    "classification_threshold": 0.95,
+    "default_threshold": 0.5,
+    "tuned_thresholds": {
+        "Logistic Regression": 0.95,
+        "Random Forest": 0.6,
+        "XGBoost": 0.95
+    },
+    "tuning_method": "F1-maximization on validation set via Precision-Recall curve",
+    "timestamp": "2026-11-02T08:23:27.359642+00:00"
+}

@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection System | Real-Time Analytics Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for interactive analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.12);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.12);
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 3rem;
+            line-height: 1.5;
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            background-color: #0b1120;
+            border-bottom: 1px solid var(--card-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+        }
+
+        .navbar-brand span {
+            color: #818cf8;
+        }
+
+        .navbar-badges {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+
+        .badge-pill {
+            background: #1e293b;
+            border: 1px solid var(--card-border);
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-pill.status-online::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .main-container {
+            max-width: 1380px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .kpi-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            border-color: #475569;
+        }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.825rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .kpi-value {
+            font-size: 2.15rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0.6rem 0 0.2rem 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .kpi-subtext {
+            font-size: 0.785rem;
+            color: var(--text-muted);
+        }
+
+        .kpi-card.fraud .kpi-value { color: var(--danger); }
+        .kpi-card.safe .kpi-value { color: var(--success); }
+        .kpi-card.rate .kpi-value { color: #f43f5e; }
+
+        /* Two-Column Middle Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            padding: 1.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* Buttons & Form Controls */
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.65rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #475569;
+            color: #cbd5e1;
+        }
+
+        .btn-outline:hover {
+            background-color: #334155;
+            color: white;
+            border-color: #64748b;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .form-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .form-grid::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 3px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        input, select {
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 0.5rem 0.65rem;
+            border: 1px solid #334155;
+            border-radius: 0.375rem;
+            font-size: 0.85rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #818cf8;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Result Section */
+        .result-section {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            border-radius: 0.65rem;
+            background-color: #0f172a;
+            border: 1px solid var(--card-border);
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-section.fraud-alert {
+            background-color: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .result-section.safe-alert {
+            background-color: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .result-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .safe { color: var(--success); }
+        .fraud { color: var(--danger); }
+
+        .metrics-card {
+            display: flex;
+            gap: 0.75rem;
+            margin: 0.75rem 0;
+            flex-wrap: wrap;
+        }
+
+        .metric-item {
+            background: #1e293b;
+            padding: 0.5rem 0.85rem;
+            border-radius: 0.4rem;
+            border: 1px solid #334155;
+            font-size: 0.875rem;
+        }
+
+        .metric-item strong {
+            color: #cbd5e1;
+        }
+
+        .result-explanation {
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.4rem;
+            line-height: 1.45;
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+
+        .result-explanation.safe {
+            color: #a7f3d0;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .result-explanation.fraud {
+            color: #fecaca;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        #json-output {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: #0b1120;
+            color: #38bdf8;
+            border-radius: 0.4rem;
+            font-family: monospace;
+            font-size: 0.78rem;
+            white-space: pre-wrap;
+            display: none;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* Analytics Chart Container */
+        .chart-box {
+            position: relative;
+            height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .model-info-box {
+            margin-top: 1.25rem;
+            padding: 1rem;
+            background: #0f172a;
+            border-radius: 0.5rem;
+            border: 1px solid #334155;
+            font-size: 0.825rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+        }
+
+        .info-row strong {
+            color: #f8fafc;
+        }
+
+        /* Transaction History Table Section */
+        .table-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filters-group {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 0.5rem;
+            border: 1px solid var(--card-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background-color: #0b1120;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        tbody tr:hover {
+            background-color: rgba(51, 65, 85, 0.4);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .status-badge.fraud {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-badge.safe {
+            background-color: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .prob-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 120px;
+        }
+
+        .prob-bar-bg {
+            flex: 1;
+            height: 6px;
+            background-color: #334155;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .prob-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        /* Pagination Bar */
+        .pagination-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        /* Inspection Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 0.75rem;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            animation: modalPop 0.2s ease-out;
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .modal-close {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #ffffff;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 0.5rem;
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #334155;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .feature-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-item span:first-child {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        .feature-item span:last-child {
+            color: #38bdf8;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <header class="navbar">
+        <div class="navbar-brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            SentinelGuard <span>Fraud Detection</span>
+        </div>
+        <div class="navbar-badges">
+            <div class="badge-pill">Model: <strong>XGBoost</strong></div>
+            <div class="badge-pill">Threshold: <strong>95.0%</strong></div>
+            <div class="badge-pill status-online">System Live</div>
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <!-- Row 1: KPI Summary Metric Cards -->
+        <section class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span>Total Transactions</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                </div>
+                <div class="kpi-value" id="kpiTotal">--</div>
+                <div class="kpi-subtext">Cumulative evaluated transactions</div>
+            </div>
+
+            <div class="kpi-card fraud">
+                <div class="kpi-header">
+                    <span>Detected Frauds</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <div class="kpi-value" id="kpiFrauds">--</div>
+                <div class="kpi-subtext">High risk flagged ($\ge 95\%$ prob)</div>
+            </div>
+
+            <div class="kpi-card safe">
+                <div class="kpi-header">
+                    <span>Legitimate Transactions</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <div class="kpi-value" id="kpiLegit">--</div>
+                <div class="kpi-subtext">Approved safe transactions</div>
+            </div>
+
+            <div class="kpi-card rate">
+                <div class="kpi-header">
+                    <span>Fraud Percentage</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                </div>
+                <div class="kpi-value" id="kpiRate">--%</div>
+                <div class="kpi-subtext">Incidence rate across logged transactions</div>
+            </div>
+        </section>
+
+        <!-- Row 2: Prediction Analyzer & Analytics Distribution -->
+        <section class="dashboard-grid">
+            
+            <!-- Left: Real-Time Risk Analyzer (Preserving existing form elements) -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Real-Time Risk Analyzer</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">XGBoost F1-Optimized</div>
+                </div>
+
+                <div class="controls">
+                    <button type="button" class="btn-outline btn-sm" onclick="fillForm(false)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        Load Normal Transaction
+                    </button>
+                    <button type="button" class="btn-outline btn-sm" onclick="fillForm(true)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        Load Fraud Transaction
+                    </button>
+                </div>
+
+                <form id="fraudForm" onsubmit="analyzeFraud(event)">
+                    <div class="form-grid" id="inputs">
+                        <!-- 30 input features populated dynamically -->
+                    </div>
+                    <div style="text-align: center;">
+                        <button type="submit" id="submitBtn" class="btn-primary" style="width: 100%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            Analyze Risk
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Result Display Block -->
+                <div id="result" class="result-section">
+                    <div class="result-title">Risk Assessment</div>
+                    <div id="riskText" class="result-value"></div>
+                    <div class="metrics-card">
+                        <div class="metric-item">
+                            <strong>Fraud Probability:</strong> <span id="fraudProb">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <strong>Decision Threshold:</strong> <span id="thresholdUsed">--</span>
+                        </div>
+                    </div>
+                    <div id="riskExplanation" class="result-explanation"></div>
+                </div>
+
+                <div id="json-output"></div>
+            </div>
+
+            <!-- Right: Interactive Distribution Chart & Model Intelligence -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Risk Distribution</div>
+                    <button class="btn-outline btn-sm" onclick="refreshDashboard()">Refresh</button>
+                </div>
+
+                <div class="chart-box">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+
+                <div class="model-info-box">
+                    <div class="info-row">
+                        <span>Classification Model:</span>
+                        <strong>XGBoost Classifier</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>Tuned Operating Threshold:</span>
+                        <strong>95.0% (P &ge; 0.95)</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>Standard Default Threshold:</span>
+                        <span>50.0% (Suppressed FP)</span>
+                    </div>
+                    <div class="info-row">
+                        <span>False Positive Reduction:</span>
+                        <strong style="color: var(--success);">-88% (108 &rarr; 13)</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>Database Persistence:</span>
+                        <span>SQLite (transaction_records)</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Row 3: Transaction Audit Log Table -->
+        <section class="card">
+            <div class="card-header">
+                <div>
+                    <div class="card-title">Transaction Audit History</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+                        Real-time persistent SQLite audit trail with status and date filtering
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Filters Bar -->
+            <div class="table-controls">
+                <div class="filters-group">
+                    <div>
+                        <label for="filterStatus">Status</label><br>
+                        <select id="filterStatus" onchange="applyFilters()">
+                            <option value="">All Transactions</option>
+                            <option value="true">Fraud Only</option>
+                            <option value="false">Legitimate Only</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filterStartDate">Start Date</label><br>
+                        <input type="date" id="filterStartDate" onchange="applyFilters()">
+                    </div>
+                    <div>
+                        <label for="filterEndDate">End Date</label><br>
+                        <input type="date" id="filterEndDate" onchange="applyFilters()">
+                    </div>
+                    <div style="align-self: flex-end;">
+                        <button type="button" class="btn-outline btn-sm" onclick="resetFilters()">Reset</button>
+                    </div>
+                </div>
+                <div style="font-size: 0.825rem; color: var(--text-muted);">
+                    Page Size: 
+                    <select id="pageSizeSelect" style="width: auto; padding: 0.25rem 0.5rem;" onchange="changePageSize()">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Timestamp (UTC)</th>
+                            <th>Amount</th>
+                            <th>Elapsed (Time)</th>
+                            <th>Fraud Probability</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                Loading transactions...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Bar -->
+            <div class="pagination-bar">
+                <div id="paginationInfo">Showing 0 of 0 records</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" id="btnPrevPage" class="btn-outline btn-sm" onclick="prevPage()" disabled>Previous</button>
+                    <button type="button" id="btnNextPage" class="btn-outline btn-sm" onclick="nextPage()" disabled>Next</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Inspection Modal for Individual Transaction Details -->
+    <div id="detailModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="font-weight: 700; font-size: 1.1rem; color: #ffffff;">
+                    Transaction Detail <span id="modalTxId" style="color: #818cf8;">#--</span>
+                </div>
+                <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+                    <div class="metric-item">
+                        <strong>Timestamp:</strong><br>
+                        <span id="modalTimestamp">--</span>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Amount:</strong><br>
+                        <span id="modalAmount" style="color: #ffffff; font-weight: 700;">$--</span>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Fraud Probability:</strong><br>
+                        <span id="modalProb" style="font-weight: 700;">--</span>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Classification:</strong><br>
+                        <span id="modalStatusBadge">--</span>
+                    </div>
+                </div>
+
+                <div>
+                    <strong style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Input Feature Vector ($V_1 \dots V_{28}$, Time, Amount):</strong>
+                    <div class="features-grid" id="modalFeaturesGrid" style="margin-top: 0.5rem;">
+                        <!-- Feature pills dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Dashboard Logic -->
+    <script>
+        const fields = ['Time', 'Amount', ...Array.from({length: 28}, (_, i) => `V${i+1}`)];
+        const container = document.getElementById('inputs');
+
+        // Dynamically create input fields
+        fields.forEach(field => {
+            const group = document.createElement('div');
+            group.className = 'form-group';
+            group.innerHTML = `
+                <label for="${field}">${field}</label>
+                <input type="number" step="any" id="${field}" name="${field}" required>
+            `;
+            container.appendChild(group);
+        });
+
+        // Verified sample benchmark profiles from dataset
+        // Normal profile: Validated low-risk normal transaction (Fraud Prob ~0.08%, Class 0)
+        const normalData = {
+            Time: 0.0, Amount: 149.62,
+            V1: -1.359807, V2: -0.072781, V3: 2.536347, V4: 1.378155, V5: -0.338321,
+            V6: 0.462388, V7: 0.239599, V8: 0.098698, V9: 0.363787, V10: 0.090794,
+            V11: -0.551600, V12: -0.617801, V13: -0.991390, V14: -0.311169, V15: 1.468177,
+            V16: -0.470401, V17: 0.207971, V18: 0.025791, V19: 0.403993, V20: 0.251412,
+            V21: -0.018307, V22: 0.277838, V23: -0.110474, V24: 0.066928, V25: 0.128539,
+            V26: -0.189115, V27: 0.133558, V28: -0.021053
+        };
+
+        // Fraud profile: Validated genuine Kaggle fraud transaction (Time=406.0, Amount=0.0, Fraud Prob ~99.96%, Class 1)
+        const fraudData = {
+            Time: 406.0, Amount: 0.0,
+            V1: -2.312227, V2: 1.951992, V3: -1.609851, V4: 3.997906, V5: -0.522188,
+            V6: -1.426545, V7: -2.537387, V8: 1.391657, V9: -2.770089, V10: -2.772272,
+            V11: 3.202033, V12: -2.899907, V13: -0.595222, V14: -4.289254, V15: 0.389724,
+            V16: -1.140747, V17: -2.830056, V18: -0.016822, V19: 0.416956, V20: 0.126911,
+            V21: 0.517232, V22: -0.035049, V23: -0.465211, V24: 0.320198, V25: 0.044519,
+            V26: 0.177840, V27: 0.261145, V28: -0.143276
+        };
+
+        function fillForm(isFraud) {
+            const base = isFraud ? fraudData : normalData;
+            fields.forEach(field => {
+                let val = base[field] !== undefined ? base[field] : 0;
+                document.getElementById(field).value = Number(val).toFixed(6);
+            });
+            document.getElementById('Amount').value = Number(base.Amount).toFixed(2);
+            document.getElementById('Time').value = Number(base.Time).toFixed(1);
+        }
+
+        // Global State for Table & Analytics
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 1;
+        let donutChart = null;
+
+        // On Page Load: Initialize Form, Load Stats, and Load Table
+        window.addEventListener('DOMContentLoaded', () => {
+            fillForm(false);
+            initChart();
+            refreshDashboard();
+        });
+
+        function refreshDashboard() {
+            loadStats();
+            loadTransactions(currentPage);
+        }
+
+        // Initialize Chart.js
+        function initChart() {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            donutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Legitimate', 'Fraud'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderColor: ['#0f172a', '#0f172a'],
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#94a3b8',
+                                font: { family: 'Inter', size: 12, weight: 600 }
+                            }
+                        }
+                    },
+                    cutout: '72%'
+                }
+            });
+        }
+
+        // Fetch Real Statistics from GET /api/stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                if (!response.ok) throw new Error("Failed to load statistics");
+                const stats = await response.json();
+
+                document.getElementById('kpiTotal').textContent = Number(stats.total_transactions).toLocaleString();
+                document.getElementById('kpiFrauds').textContent = Number(stats.detected_frauds).toLocaleString();
+                document.getElementById('kpiLegit').textContent = Number(stats.legitimate_transactions).toLocaleString();
+                document.getElementById('kpiRate').textContent = `${Number(stats.fraud_percentage).toFixed(2)}%`;
+
+                // Update chart
+                if (donutChart) {
+                    donutChart.data.datasets[0].data = [stats.legitimate_transactions, stats.detected_frauds];
+                    donutChart.update();
+                }
+            } catch (err) {
+                console.error("Stats fetch error:", err);
+            }
+        }
+
+        // Fetch Paginated Transactions from GET /api/transactions
+        async function loadTransactions(page = 1) {
+            currentPage = page;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+
+            let url = `/api/transactions?page=${currentPage}&page_size=${pageSize}`;
+            if (statusFilter !== "") url += `&is_fraud=${statusFilter}`;
+            if (startDate) url += `&start_date=${encodeURIComponent(startDate)}`;
+            if (endDate) url += `&end_date=${encodeURIComponent(endDate)}`;
+
+            const tbody = document.getElementById('transactionTableBody');
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Loading transactions...</td></tr>`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || "Failed to load transactions");
+                }
+
+                const data = await response.json();
+                totalPages = Math.max(1, data.total_pages);
+                
+                // Update pagination controls
+                document.getElementById('paginationInfo').textContent = 
+                    data.total > 0
+                        ? `Showing page ${data.page} of ${totalPages} (${data.total} total transactions)`
+                        : `No transactions found`;
+
+                document.getElementById('btnPrevPage').disabled = (data.page <= 1);
+                document.getElementById('btnNextPage').disabled = (data.page >= totalPages);
+
+                if (!data.items || data.items.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No transaction records found matching your filters.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = "";
+                data.items.forEach(item => {
+                    const tr = document.createElement('tr');
+                    const isFraud = item.is_fraud;
+                    const probPct = (item.fraud_probability * 100).toFixed(2);
+                    const barColor = isFraud ? 'var(--danger)' : 'var(--success)';
+                    const statusClass = isFraud ? 'fraud' : 'safe';
+                    const statusLabel = isFraud ? 'FRAUD' : 'LEGITIMATE';
+                    const dateFormatted = new Date(item.timestamp).toLocaleString();
+
+                    tr.innerHTML = `
+                        <td><strong>#${item.id}</strong></td>
+                        <td style="color: var(--text-muted);">${dateFormatted}</td>
+                        <td style="font-weight: 600;">$${Number(item.amount).toFixed(2)}</td>
+                        <td style="color: var(--text-muted);">${Number(item.transaction_time).toFixed(1)}s</td>
+                        <td>
+                            <div class="prob-bar-container">
+                                <span style="font-weight: 700; width: 45px; text-align: right;">${probPct}%</span>
+                                <div class="prob-bar-bg">
+                                    <div class="prob-bar-fill" style="width: ${Math.min(100, Math.max(4, probPct))}%; background-color: ${barColor};"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                        <td>
+                            <button type="button" class="btn-outline btn-sm" onclick="viewTransactionDetails(${item.id})">
+                                Details
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+            } catch (err) {
+                console.error("Transactions load error:", err);
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger); padding: 1.5rem;">Error loading history: ${err.message}</td></tr>`;
+            }
+        }
+
+        function applyFilters() {
+            loadTransactions(1);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterStatus').value = "";
+            document.getElementById('filterStartDate').value = "";
+            document.getElementById('filterEndDate').value = "";
+            loadTransactions(1);
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSizeSelect').value, 10);
+            loadTransactions(1);
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                loadTransactions(currentPage - 1);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                loadTransactions(currentPage + 1);
+            }
+        }
+
+        // View Transaction Details in Modal (GET /api/transactions/{id})
+        async function viewTransactionDetails(id) {
+            try {
+                const response = await fetch(`/api/transactions/${id}`);
+                if (!response.ok) throw new Error("Transaction not found");
+                const tx = await response.json();
+
+                document.getElementById('modalTxId').textContent = `#${tx.id}`;
+                document.getElementById('modalTimestamp').textContent = new Date(tx.timestamp).toUTCString();
+                document.getElementById('modalAmount').textContent = `$${Number(tx.amount).toFixed(2)}`;
+                
+                const probPct = (tx.fraud_probability * 100).toFixed(2);
+                document.getElementById('modalProb').textContent = `${probPct}% (Threshold: ${(tx.threshold_used * 100).toFixed(1)}%)`;
+
+                const badge = document.getElementById('modalStatusBadge');
+                if (tx.is_fraud) {
+                    badge.className = "status-badge fraud";
+                    badge.textContent = "FRAUD FLAGGED";
+                } else {
+                    badge.className = "status-badge safe";
+                    badge.textContent = "LEGITIMATE";
+                }
+
+                // Render features grid
+                const grid = document.getElementById('modalFeaturesGrid');
+                grid.innerHTML = "";
+                const features = tx.features || {};
+                
+                for (const [key, val] of Object.entries(features)) {
+                    const item = document.createElement('div');
+                    item.className = "feature-item";
+                    item.innerHTML = `
+                        <span>${key}</span>
+                        <span>${typeof val === 'number' ? val.toFixed(4) : val}</span>
+                    `;
+                    grid.appendChild(item);
+                }
+
+                document.getElementById('detailModal').style.display = 'flex';
+            } catch (err) {
+                alert("Error loading transaction details: " + err.message);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function closeModalOnOverlay(e) {
+            if (e.target.id === 'detailModal') {
+                closeModal();
+            }
+        }
+
+        // Submit form and predict risk (POST /predict)
+        async function analyzeFraud(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = "Evaluating Risk...";
+
+            const data = {};
+            fields.forEach(field => {
+                data[field] = parseFloat(document.getElementById(field).value) || 0.0;
+            });
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    const errObj = await response.json().catch(() => ({}));
+                    throw new Error(errObj.detail || "Prediction request failed");
+                }
+
+                const result = await response.json();
+                
+                const resultDiv = document.getElementById('result');
+                const riskText = document.getElementById('riskText');
+                const fraudProb = document.getElementById('fraudProb');
+                const thresholdUsed = document.getElementById('thresholdUsed');
+                const riskExplanation = document.getElementById('riskExplanation');
+                
+                resultDiv.style.display = 'block';
+
+                const rawProb = typeof result.probability === 'number' ? result.probability : 0;
+                const rawThreshold = typeof result.threshold_used === 'number' ? result.threshold_used : 0.95;
+
+                const fraudPct = (rawProb * 100).toFixed(2);
+                const thresholdPct = (rawThreshold * 100).toFixed(2);
+
+                fraudProb.textContent = `${fraudPct}%`;
+                thresholdUsed.textContent = `${thresholdPct}%`;
+                
+                if (result.is_fraud) {
+                    riskText.textContent = "HIGH RISK (FRAUD)";
+                    riskText.className = "result-value fraud";
+                    resultDiv.className = "result-section fraud-alert";
+                    riskExplanation.className = "result-explanation fraud";
+                    riskExplanation.innerHTML = `⚠️ <strong>High Risk Flagged:</strong> The estimated <strong>Fraud Probability (${fraudPct}%)</strong> is at or above the model's tuned decision threshold (<strong>${thresholdPct}%</strong>). This transaction exhibits behavioral characteristics strongly associated with fraudulent activity.`;
+                } else {
+                    riskText.textContent = "LOW RISK (LEGITIMATE)";
+                    riskText.className = "result-value safe";
+                    resultDiv.className = "result-section safe-alert";
+                    riskExplanation.className = "result-explanation safe";
+                    riskExplanation.innerHTML = `✅ <strong>Legitimate Transaction:</strong> The estimated <strong>Fraud Probability (${fraudPct}%)</strong> is below the model's tuned decision threshold (<strong>${thresholdPct}%</strong>). This transaction is within verified low-risk parameters.`;
+                }
+                
+                // Show Raw JSON Output
+                const jsonOut = document.getElementById('json-output');
+                jsonOut.style.display = 'block';
+                jsonOut.textContent = JSON.stringify(result, null, 2);
+
+                // Seamlessly refresh KPI cards, chart, and transaction audit table
+                refreshDashboard();
+
+            } catch (err) {
+                alert("Error analyzing transaction: " + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+            }
+        }
+    </script>
+</body>
+</html>

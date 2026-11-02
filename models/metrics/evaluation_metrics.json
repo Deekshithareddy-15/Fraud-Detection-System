@@ -1,0 +1,231 @@
+{
+    "comparison_summary": {
+        "Logistic Regression": {
+            "default_threshold_0_50": {
+                "threshold": 0.5,
+                "accuracy": 0.9758,
+                "precision": 0.0609,
+                "recall": 0.9082,
+                "f1_score": 0.1142,
+                "roc_auc": 0.9713,
+                "pr_auc": 0.7239,
+                "confusion_matrix": {
+                    "tn": 55492,
+                    "fp": 1372,
+                    "fn": 9,
+                    "tp": 89,
+                    "raw": [
+                        [
+                            55492,
+                            1372
+                        ],
+                        [
+                            9,
+                            89
+                        ]
+                    ]
+                },
+                "tradeoff": {
+                    "false_positives": 1372,
+                    "false_negatives": 9,
+                    "fp_to_fn_ratio": 152.44,
+                    "fraud_catch_rate": "90.82%"
+                }
+            },
+            "validation_tuned_threshold": {
+                "threshold": 0.95,
+                "accuracy": 0.995,
+                "precision": 0.241,
+                "recall": 0.8878,
+                "f1_score": 0.3791,
+                "roc_auc": 0.9713,
+                "pr_auc": 0.7239,
+                "confusion_matrix": {
+                    "tn": 56590,
+                    "fp": 274,
+                    "fn": 11,
+                    "tp": 87,
+                    "raw": [
+                        [
+                            56590,
+                            274
+                        ],
+                        [
+                            11,
+                            87
+                        ]
+                    ]
+                },
+                "tradeoff": {
+                    "false_positives": 274,
+                    "false_negatives": 11,
+                    "fp_to_fn_ratio": 24.91,
+                    "fraud_catch_rate": "88.78%"
+                }
+            }
+        },
+        "Random Forest": {
+            "default_threshold_0_50": {
+                "threshold": 0.5,
+                "accuracy": 0.9991,
+                "precision": 0.713,
+                "recall": 0.8367,
+                "f1_score": 0.77,
+                "roc_auc": 0.9751,
+                "pr_auc": 0.8289,
+                "confusion_matrix": {
+                    "tn": 56831,
+                    "fp": 33,
+                    "fn": 16,
+                    "tp": 82,
+                    "raw": [
+                        [
+                            56831,
+                            33
+                        ],
+                        [
+                            16,
+                            82
+                        ]
+                    ]
+                },
+                "tradeoff": {
+                    "false_positives": 33,
+                    "false_negatives": 16,
+                    "fp_to_fn_ratio": 2.06,
+                    "fraud_catch_rate": "83.67%"
+                }
+            },
+            "validation_tuned_threshold": {
+                "threshold": 0.6,
+                "accuracy": 0.9993,
+                "precision": 0.8061,
+                "recall": 0.8061,
+                "f1_score": 0.8061,
+                "roc_auc": 0.9751,
+                "pr_auc": 0.8289,
+                "confusion_matrix": {
+                    "tn": 56845,
+                    "fp": 19,
+                    "fn": 19,
+                    "tp": 79,
+                    "raw": [
+                        [
+                            56845,
+                            19
+                        ],
+                        [
+                            19,
+                            79
+                        ]
+                    ]
+                },
+                "tradeoff": {
+                    "false_positives": 19,
+                    "false_negatives": 19,
+                    "fp_to_fn_ratio": 1.0,
+                    "fraud_catch_rate": "80.61%"
+                }
+            }
+        },
+        "XGBoost": {
+            "default_threshold_0_50": {
+                "threshold": 0.5,
+                "accuracy": 0.9979,
+                "precision": 0.4375,
+                "recall": 0.8571,
+                "f1_score": 0.5793,
+                "roc_auc": 0.9775,
+                "pr_auc": 0.8412,
+                "confusion_matrix": {
+                    "tn": 56756,
+                    "fp": 108,
+                    "fn": 14,
+                    "tp": 84,
+                    "raw": [
+                        [
+                            56756,
+                            108
+                        ],
+                        [
+                            14,
+                            84
+                        ]
+                    ]
+                },
+                "tradeoff": {
+                    "false_positives": 108,
+                    "false_negatives": 14,
+                    "fp_to_fn_ratio": 7.71,
+                    "fraud_catch_rate": "85.71%"
+                }
+            },
+            "validation_tuned_threshold": {
+                "threshold": 0.95,
+                "accuracy": 0.9994,
+                "precision": 0.8556,
+                "recall": 0.7857,
+                "f1_score": 0.8191,
+                "roc_auc": 0.9775,
+                "pr_auc": 0.8412,
+                "confusion_matrix": {
+                    "tn": 56851,
+                    "fp": 13,
+                    "fn": 21,
+                    "tp": 77,
+                    "raw": [
+                        [
+                            56851,
+                            13
+                        ],
+                        [
+                            21,
+                            77
+                        ]
+                    ]
+                },
+                "tradeoff": {
+                    "false_positives": 13,
+                    "false_negatives": 21,
+                    "fp_to_fn_ratio": 0.62,
+                    "fraud_catch_rate": "78.57%"
+                }
+            }
+        }
+    },
+    "selected_best_model": {
+        "name": "XGBoost",
+        "threshold": 0.95,
+        "metrics": {
+            "threshold": 0.95,
+            "accuracy": 0.9994,
+            "precision": 0.8556,
+            "recall": 0.7857,
+            "f1_score": 0.8191,
+            "roc_auc": 0.9775,
+            "pr_auc": 0.8412,
+            "confusion_matrix": {
+                "tn": 56851,
+                "fp": 13,
+                "fn": 21,
+                "tp": 77,
+                "raw": [
+                    [
+                        56851,
+                        13
+                    ],
+                    [
+                        21,
+                        77
+                    ]
+                ]
+            },
+            "tradeoff": {
+                "false_positives": 13,
+                "false_negatives": 21,
+                "fp_to_fn_ratio": 0.62,
+                "fraud_catch_rate": "78.57%"
+            }
+        }
+    }
+}

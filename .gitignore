@@ -1,0 +1,49 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Caches and test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment Variables & Secrets
+.env
+.env.*
+*.pem
+*.key
+
+# SQLite Database & Storage
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+data/fraud_detection.db
+
+# Large Datasets & Raw CSV Data (Do not upload 143MB Kaggle dataset)
+data/raw/*.csv
+data/*.csv
+data/raw/creditcard.csv
+data/raw/creditcard_synthetic.csv
+!data/raw/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# IDE & Editor Specific
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
