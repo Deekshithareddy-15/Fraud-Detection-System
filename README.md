@@ -367,22 +367,6 @@ fraud-detection-system/
 
 ---
 
-## 11. Technical Summary for Placement Interviews
-
-> **Elevator Pitch (60 Seconds)**:
-> *"I designed and built a full-stack, real-time Credit Card Fraud Detection System using Python, FastAPI, XGBoost, and SQLite, trained on the 284,807-transaction Kaggle dataset. Because credit card fraud is heavily imbalanced (0.17%), naive models produce hundreds of false alarms. I implemented a strict 3-way stratified split where feature scaling and SMOTE were applied exclusively to training data to guarantee zero leakage. By tuning the operating decision threshold to 0.95 on validation precision-recall curves, I cut false positives by 88% while detecting 78.6% of fraud on untouched test data. On the backend, I engineered a thread-safe SQLite audit trail, Pydantic range validation, request timing middleware, and a responsive analytics dashboard with live KPI metrics and Chart.js visualizations, fully verified by 37 passing unit and integration tests."*
-
-### Key Technical Talking Points
-1. **Preventing Data Leakage**: Explain why scaling and SMOTE must never touch validation or test data: fitting scalers or oversampling before splitting allows target distribution information to contaminate test evaluations, artificially inflating metrics.
-2. **Precision-Recall vs. ROC-AUC**: Explain why PR-AUC was preferred over ROC-AUC: with 99.83% legitimate transactions, false positive rates in ROC curves are diluted by the massive true negative denominator, masking hundreds of false alarms.
-3. **Threshold Engineering**: Detail how shifting the classification threshold from $0.50$ to $0.95$ reduced false alarms from 108 down to 13, maximizing business value by preventing legitimate cardholder declines.
-4. **Backend Concurrency & Reliability**: Explain SQLite thread safety in FastAPI (`check_same_thread=False`, request-scoped `get_db` generator, rollback on error) and Pydantic boundary checks preventing NaN/Inf crashes.
-
----
-
-
-
----
 
 ## License
 
