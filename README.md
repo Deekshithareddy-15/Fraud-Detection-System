@@ -380,12 +380,7 @@ fraud-detection-system/
 
 ---
 
-## 12. Resume Bullet Points
 
-- **Engineered an end-to-end Credit Card Fraud Detection platform** using **FastAPI**, **XGBoost**, **SQLAlchemy**, and **SQLite**, analyzing 284k+ Kaggle transactions with sub-30ms REST inference.
-- **Architected a zero-leakage ML pipeline** with stratified 3-way splitting, training-isolated RobustScaling, and SMOTE balancing, boosting out-of-sample PR-AUC to **0.8412** and ROC-AUC to **0.9775**.
-- **Optimized operational classification threshold to 0.95** via validation Precision-Recall curves, **reducing false alarms by 88%** (108 $\rightarrow$ 13) while maintaining a **78.6% fraud detection recall**.
-- **Developed a responsive analytics dashboard** and persistent SQLite audit logger featuring live KPI cards, Chart.js visualizations, date/status filtering, and 37 automated pytest integration tests.
 
 ---
 
